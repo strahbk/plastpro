@@ -585,53 +585,81 @@
     }
     
     function renderFullSpecTable(shapeType) {
-        const state = selectedState[shapeType];
-        const vol = state.currentVolume;
-        const mountItemsWithPrices = getMountItemsWithPrices(shapeType, vol);
-        const mountMap = new Map(mountItemsWithPrices.map(i => [i.id, i]));
-        
-        let sizeText = "", basePrice = getBasePrice(shapeType);
-        if(shapeType === 'rect') sizeText = `${state.length}×${state.width}×1.5 м`;
-        else if(shapeType === 'circle') sizeText = `⌀${state.diameter}×1.5 м`;
-        else sizeText = `${state.length}×${state.width}×1.5 м`;
-        
-        const selectedMount = Array.from(state.mount).map(id => mountMap.get(id)).filter(i => i);
-        const selectedLight = Array.from(state.light).map(id => ({ ...lightOptions.find(i => i.id === id), price: getOptionPrice(shapeType, id) })).filter(i => i && i.price);
-        const selectedEquip = Array.from(state.equip).map(id => ({ ...equipItems.find(i => i.id === id), price: getOptionPrice(shapeType, id) })).filter(i => i && i.price);
-        const selectedStairs = Array.from(state.stairs).map(id => ({ ...stairsItems.find(i => i.id === id), price: getOptionPrice(shapeType, id) })).filter(i => i && i.price);
-        const selectedEmbed = Array.from(state.embed).map(id => ({ ...embedItems.find(i => i.id === id), price: getOptionPrice(shapeType, id) })).filter(i => i && i.price);
-        
-        let rows = [{category:"ЧАША БАССЕЙНА", name:`Бассейн ${shapeType==='rect'?'прямоугольный':shapeType==='circle'?'круглый':'овальный'} ${sizeText}`, price:basePrice, qty:1, sum:basePrice}];
-        
-        const addItem = (item, cat) => { 
-            rows.push({category: cat, name: item.name, price: item.price, qty: item.qty, sum: item.price});
-        };
-        
-        if(selectedStairs.length) selectedStairs.forEach(item => addItem(item, "Лестница"));
-        if(selectedEmbed.length) selectedEmbed.forEach(item => addItem(item, "Закладные детали"));
-        if(shapeType === 'rect' && state.radius.has(radiusItem.id)) addItem({...radiusItem, price: getOptionPrice(shapeType, 'radius_corners')}, "Дополнительно");
-        if(shapeType === 'circle' && state.edge.has(edgeItem.id)) addItem({...edgeItem, price: getOptionPrice(shapeType, 'edge_finish')}, "Финишный борт");
-        if(selectedMount.length) selectedMount.forEach(item => addItem(item, "Монтаж чаши"));
-        if(selectedLight.length) selectedLight.forEach(item => addItem(item, "Освещение"));
-        if(selectedEquip.length) selectedEquip.forEach(item => addItem(item, "Оборудование"));
-        
-        const container = document.getElementById(`${shapeType}SpecTable`);
-        if(!container) return;
-        if(rows.length === 1 && !selectedMount.length && !selectedLight.length && !selectedEquip.length && !selectedStairs.length && !selectedEmbed.length && (shapeType!=='rect' || !state.radius.has(radiusItem.id)) && (shapeType!=='circle' || !state.edge.has(edgeItem.id))) {
-            container.innerHTML = `<h4>📋 Спецификация для заказа</h4><div class="empty-spec">Выберите позиции, чтобы сформировать накладную</div>`;
-            return;
-        }
-        let html = `<h4>📋 Спецификация для заказа (скриншот для менеджера)</h4><tr><thead><tr><th>Наименование</th><th>Кол-во</th><th>Цена ед., ₽</th><th>Сумма, ₽</th></tr></thead><tbody>`;
-        let lastCat = "", totalSum = 0;
-        rows.forEach(row => {
-            if(row.category !== lastCat && row.category) { html += `<tr class="category-row"><td colspan="4"><strong>${row.category}</strong></td></tr>`; lastCat = row.category; }
-            const pricePerUnit = Math.round(row.price / (row.qty || 1));
-            html += `<tr><td style="max-width:260px;">${row.name}</td><td>${row.qty} шт</td><td>${pricePerUnit.toLocaleString('ru-RU')}</td><td>${row.sum.toLocaleString('ru-RU')}</td></tr>`;
-            totalSum += row.sum;
-        });
-        html += `<tr class="total-row"><td colspan="3"><strong>ВСЕГО по спецификации:</strong></td><td><strong>${totalSum.toLocaleString('ru-RU')} ₽</strong></td></tr></tbody>表`;
-        container.innerHTML = html;
+    const state = selectedState[shapeType];
+    const vol = state.currentVolume;
+    const mountItemsWithPrices = getMountItemsWithPrices(shapeType, vol);
+    const mountMap = new Map(mountItemsWithPrices.map(i => [i.id, i]));
+    
+    let sizeText = "", basePrice = getBasePrice(shapeType);
+    if(shapeType === 'rect') sizeText = `${state.length}×${state.width}×1.5 м`;
+    else if(shapeType === 'circle') sizeText = `⌀${state.diameter}×1.5 м`;
+    else sizeText = `${state.length}×${state.width}×1.5 м`;
+    
+    const selectedMount = Array.from(state.mount).map(id => mountMap.get(id)).filter(i => i);
+    const selectedLight = Array.from(state.light).map(id => ({ ...lightOptions.find(i => i.id === id), price: getOptionPrice(shapeType, id) })).filter(i => i && i.price);
+    const selectedEquip = Array.from(state.equip).map(id => ({ ...equipItems.find(i => i.id === id), price: getOptionPrice(shapeType, id) })).filter(i => i && i.price);
+    const selectedStairs = Array.from(state.stairs).map(id => ({ ...stairsItems.find(i => i.id === id), price: getOptionPrice(shapeType, id) })).filter(i => i && i.price);
+    const selectedEmbed = Array.from(state.embed).map(id => ({ ...embedItems.find(i => i.id === id), price: getOptionPrice(shapeType, id) })).filter(i => i && i.price);
+    
+    let rows = [{category:"ЧАША БАССЕЙНА", name:`Бассейн ${shapeType==='rect'?'прямоугольный':shapeType==='circle'?'круглый':'овальный'} ${sizeText}`, price:basePrice, qty:1, sum:basePrice}];
+    
+    const addItem = (item, cat) => { 
+        rows.push({category: cat, name: item.name, price: item.price, qty: item.qty, sum: item.price});
+    };
+    
+    if(selectedStairs.length) selectedStairs.forEach(item => addItem(item, "Лестница"));
+    if(selectedEmbed.length) selectedEmbed.forEach(item => addItem(item, "Закладные детали"));
+    if(shapeType === 'rect' && state.radius.has(radiusItem.id)) addItem({...radiusItem, price: getOptionPrice(shapeType, 'radius_corners')}, "Дополнительно");
+    if(shapeType === 'circle' && state.edge.has(edgeItem.id)) addItem({...edgeItem, price: getOptionPrice(shapeType, 'edge_finish')}, "Финишный борт");
+    if(selectedMount.length) selectedMount.forEach(item => addItem(item, "Монтаж чаши"));
+    if(selectedLight.length) selectedLight.forEach(item => addItem(item, "Освещение"));
+    if(selectedEquip.length) selectedEquip.forEach(item => addItem(item, "Оборудование"));
+    
+    const container = document.getElementById(`${shapeType}SpecTable`);
+    if(!container) return;
+    
+    if(rows.length === 1 && !selectedMount.length && !selectedLight.length && !selectedEquip.length && !selectedStairs.length && !selectedEmbed.length && (shapeType!=='rect' || !state.radius.has(radiusItem.id)) && (shapeType!=='circle' || !state.edge.has(edgeItem.id))) {
+        container.innerHTML = `<h4>📋 Спецификация для заказа</h4><div class="empty-spec">Выберите позиции, чтобы сформировать накладную</div>`;
+        return;
     }
+    
+    let rowsHtml = "";
+    let lastCat = "";
+    let totalSum = 0;
+    
+    rows.forEach(row => {
+        if(row.category !== lastCat && row.category) { 
+            rowsHtml += `<tr class="category-row" style="background:#f3f9ff;"><td colspan="4" style="padding:10px 8px; font-weight:700; color:#1d5a85;"><strong>${row.category}</strong></td></tr>`; 
+            lastCat = row.category; 
+        }
+        const pricePerUnit = Math.round(row.price / (row.qty || 1));
+        rowsHtml += `<tr style="border-bottom:1px solid #e2eef9;">
+                        <td style="padding:8px; max-width:260px;">${row.name}</td>
+                        <td style="padding:8px; text-align:center;">${row.qty} шт</td>
+                        <td style="padding:8px; text-align:right;">${pricePerUnit.toLocaleString('ru-RU')}</td>
+                        <td style="padding:8px; text-align:right;">${row.sum.toLocaleString('ru-RU')}</td>
+                     </tr>`;
+        totalSum += row.sum;
+    });
+    
+    rowsHtml += `<tr class="total-row" style="background:#eef3fc; font-weight:800;">
+                    <td colspan="3" style="padding:12px 8px;"><strong>ВСЕГО по спецификации:</strong></td>
+                    <td style="padding:12px 8px; text-align:right;"><strong>${totalSum.toLocaleString('ru-RU')} ₽</strong></td>
+                 </tr>`;
+    
+    container.innerHTML = `<h4>📋 Спецификация для заказа (скриншот для менеджера)</h4>
+                           <table style="width:100%; border-collapse:collapse;">
+                               <thead style="background:#eef3fc;">
+                                   <tr>
+                                       <th style="padding:10px; text-align:left;">Наименование</th>
+                                       <th style="padding:10px; text-align:center;">Кол-во</th>
+                                       <th style="padding:10px; text-align:right;">Цена ед., ₽</th>
+                                       <th style="padding:10px; text-align:right;">Сумма, ₽</th>
+                                   </tr>
+                               </thead>
+                               <tbody>${rowsHtml}</tbody>
+                           </table>`;
+}
     
     function updateTotalAndSpec(shapeType){
         const state = selectedState[shapeType];
