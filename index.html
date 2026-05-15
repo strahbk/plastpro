@@ -896,7 +896,7 @@
         else if(shapeType === 'circle') document.querySelectorAll('#pageCircle .size-btn').forEach(btn => { 
             btn.onclick = () => { 
                 let v = selectedState.circle.diameter + parseFloat(btn.dataset.delta); 
-                if(v >= 3 && v <= 7) selectedState.circle.diameter = v; 
+                if(v >= 1.5 && v <= 6) selectedState.circle.diameter = v; 
                 updateVolume(shapeType); 
             }; 
         });
