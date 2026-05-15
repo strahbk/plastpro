@@ -607,13 +607,13 @@
         rows.push({category: cat, name: item.name, price: item.price, qty: item.qty, sum: item.price});
     };
     
-    if(selectedStairs.length) selectedStairs.forEach(item => addItem(item, "Лестница"));
-    if(selectedEmbed.length) selectedEmbed.forEach(item => addItem(item, "Закладные детали"));
-    if(shapeType === 'rect' && state.radius.has(radiusItem.id)) addItem({...radiusItem, price: getOptionPrice(shapeType, 'radius_corners')}, "Дополнительно");
-    if(shapeType === 'circle' && state.edge.has(edgeItem.id)) addItem({...edgeItem, price: getOptionPrice(shapeType, 'edge_finish')}, "Финишный борт");
-    if(selectedMount.length) selectedMount.forEach(item => addItem(item, "Монтаж чаши"));
-    if(selectedLight.length) selectedLight.forEach(item => addItem(item, "Освещение"));
-    if(selectedEquip.length) selectedEquip.forEach(item => addItem(item, "Оборудование"));
+    if(selectedStairs.length) selectedStairs.forEach(item => addItem(item, "ЛЕСТНИЦА"));
+    if(selectedEmbed.length) selectedEmbed.forEach(item => addItem(item, "ЗАКЛАДНЫЕ ДЕТАЛИ"));
+    if(shapeType === 'rect' && state.radius.has(radiusItem.id)) addItem({...radiusItem, price: getOptionPrice(shapeType, 'radius_corners')}, "ДОПОЛНИТЕЛЬНО");
+    if(shapeType === 'circle' && state.edge.has(edgeItem.id)) addItem({...edgeItem, price: getOptionPrice(shapeType, 'edge_finish')}, "ФИНИШНЫЙ БОРТ");
+    if(selectedMount.length) selectedMount.forEach(item => addItem(item, "МОНТАЖ ЧАШИ"));
+    if(selectedLight.length) selectedLight.forEach(item => addItem(item, "ОСВЕЩЕНИЕ"));
+    if(selectedEquip.length) selectedEquip.forEach(item => addItem(item, "ОБОРУДОВАНИЕ"));
     
     const container = document.getElementById(`${shapeType}SpecTable`);
     if(!container) return;
@@ -629,36 +629,42 @@
     
     rows.forEach(row => {
         if(row.category !== lastCat && row.category) { 
-            rowsHtml += `<tr class="category-row" style="background:#f3f9ff;"><td colspan="4" style="padding:10px 8px; font-weight:700; color:#1d5a85;"><strong>${row.category}</strong></td></tr>`; 
+            rowsHtml += `<tr style="background:#e6f2fa; border-top:2px solid #bdd8ec;">
+                            <td colspan="4" style="padding:10px 8px; font-weight:800; color:#0a4c73; font-size:0.9rem;">${row.category}</td>
+                         </tr>`;
             lastCat = row.category; 
         }
         const pricePerUnit = Math.round(row.price / (row.qty || 1));
-        rowsHtml += `<tr style="border-bottom:1px solid #e2eef9;">
-                        <td style="padding:8px; max-width:260px;">${row.name}</td>
-                        <td style="padding:8px; text-align:center;">${row.qty} шт</td>
-                        <td style="padding:8px; text-align:right;">${pricePerUnit.toLocaleString('ru-RU')}</td>
-                        <td style="padding:8px; text-align:right;">${row.sum.toLocaleString('ru-RU')}</td>
-                     </tr>`;
+        rowsHtml += `<tr style="border-bottom:1px solid #e0ecf5;">
+                        <td style="padding:10px 8px; text-align:left;">${row.name}</td>
+                        <td style="padding:10px 8px; text-align:center; width:70px;">${row.qty} шт</td>
+                        <td style="padding:10px 8px; text-align:right; width:110px;">${pricePerUnit.toLocaleString('ru-RU')}</td>
+                        <td style="padding:10px 8px; text-align:right; width:120px; font-weight:600;">${row.sum.toLocaleString('ru-RU')}</td>
+                      </tr>`;
         totalSum += row.sum;
     });
     
-    rowsHtml += `<tr class="total-row" style="background:#eef3fc; font-weight:800;">
-                    <td colspan="3" style="padding:12px 8px;"><strong>ВСЕГО по спецификации:</strong></td>
-                    <td style="padding:12px 8px; text-align:right;"><strong>${totalSum.toLocaleString('ru-RU')} ₽</strong></td>
+    rowsHtml += `<tr style="background:#eef3fc; border-top:2px solid #c0d8ec;">
+                    <td colspan="3" style="padding:12px 8px; font-weight:800; font-size:1rem;">ВСЕГО по спецификации:</td>
+                    <td style="padding:12px 8px; text-align:right; font-weight:800; font-size:1.1rem; color:#0a4c73;">${totalSum.toLocaleString('ru-RU')} ₽</td>
                  </tr>`;
     
-    container.innerHTML = `<h4>📋 Спецификация для заказа (скриншот для менеджера)</h4>
-                           <table style="width:100%; border-collapse:collapse;">
-                               <thead style="background:#eef3fc;">
-                                   <tr>
-                                       <th style="padding:10px; text-align:left;">Наименование</th>
-                                       <th style="padding:10px; text-align:center;">Кол-во</th>
-                                       <th style="padding:10px; text-align:right;">Цена ед., ₽</th>
-                                       <th style="padding:10px; text-align:right;">Сумма, ₽</th>
-                                   </tr>
-                               </thead>
-                               <tbody>${rowsHtml}</tbody>
-                           </table>`;
+    container.innerHTML = `
+        <h4 style="margin:0 0 12px 0; font-size:1.1rem;">📋 Спецификация для заказа (скриншот для менеджера)</h4>
+        <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; background:white; border-radius:16px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+                <thead style="background:#d9eaf5; border-bottom:2px solid #b0cce4;">
+                    <tr>
+                        <th style="padding:12px 8px; text-align:left; font-weight:700; color:#1a5d83;">Наименование</th>
+                        <th style="padding:12px 8px; text-align:center; font-weight:700; color:#1a5d83; width:70px;">Кол-во</th>
+                        <th style="padding:12px 8px; text-align:right; font-weight:700; color:#1a5d83; width:110px;">Цена ед., ₽</th>
+                        <th style="padding:12px 8px; text-align:right; font-weight:700; color:#1a5d83; width:120px;">Сумма, ₽</th>
+                    </tr>
+                </thead>
+                <tbody>${rowsHtml}</tbody>
+            </table>
+        </div>
+    `;
 }
     
     function updateTotalAndSpec(shapeType){
